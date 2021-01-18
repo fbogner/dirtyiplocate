@@ -32,10 +32,11 @@ except FileNotFoundError:
 	print('Geo location Database not found: GeoLite2-City.mmdb')
 	print()
 	print('To get it, do the following:')
-	print('1.) Register here: https://www.maxmind.com/en/account/login')
-	print('2.) Select "Download Files" from the left menu')
-	print('3.) Download "GeoLite2 City" as .mmdb file (not the CSV)')
-	print('4.) Save it along this script as GeoLite2-City.mmdb')
+	print('1.) Register here: https://www.maxmind.com/en/geolite2/signup')
+	print('2.) Access your account here: https://www.maxmind.com/en/account/login')
+	print('3.) Select "Download Files" from the left menu')
+	print('4.) Download "GeoLite2 City" as .mmdb file (not the CSV)')
+	print('5.) Save it along this script as GeoLite2-City.mmdb')
 	sys.exit(2)
 
 
@@ -50,8 +51,23 @@ if (args.append):
 # Do the actual work
 # ======================================================
 # open the destination file in append mode
+count=0
+
 with open(args.output, mode, newline='') as csvfile:
 	spamwriter = csv.writer(csvfile, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+	
+	# Add header row
+	if (not args.append):
+		spamwriter.writerow([
+			'IP',
+        	'Country Code',
+    		'Country name',
+        	'Postal Code',
+			'Most Specific Name',
+			'City Name',
+			'Latitude',
+			'Longitude'
+		])
 	
 	# open the source ip file
 	with open(args.ips) as ipfile:
@@ -59,6 +75,7 @@ with open(args.output, mode, newline='') as csvfile:
 		for ip in ipfile:
 			# ... do the geolocation magic ...
 			response = reader.city(ip.strip())
+			count=count+1
 			
 			# and save the result to the CSV
 			spamwriter.writerow([
@@ -71,3 +88,5 @@ with open(args.output, mode, newline='') as csvfile:
 				response.location.latitude,
 				response.location.longitude
 			])
+
+print(str(count)+" IPs have been geolocated.")
