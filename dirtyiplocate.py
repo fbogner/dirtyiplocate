@@ -74,19 +74,22 @@ with open(args.output, mode, newline='') as csvfile:
 		# for each IP ...
 		for ip in ipfile:
 			# ... do the geolocation magic ...
-			response = reader.city(ip.strip())
-			count=count+1
-			
-			# and save the result to the CSV
-			spamwriter.writerow([
-				ip.strip(),
-        		response.country.iso_code,
-        		response.country.name,
-        		response.postal.code,
-				response.subdivisions.most_specific.name,
-				response.city.name,
-				response.location.latitude,
-				response.location.longitude
-			])
+			try:
+				response = reader.city(ip.strip())
+				count=count+1
+				
+				# and save the result to the CSV
+				spamwriter.writerow([
+					ip.strip(),
+        			response.country.iso_code,
+        			response.country.name,
+        			response.postal.code,
+					response.subdivisions.most_specific.name,
+					response.city.name,
+					response.location.latitude,
+					response.location.longitude
+				])
+			except geoip2.errors.AddressNotFoundError:
+				print("IP "+ip.strip()+" not found")
 
 print(str(count)+" IPs have been geolocated.")
